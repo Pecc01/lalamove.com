@@ -6,14 +6,40 @@ import FeaturesSection from "@/components/FeaturesSection";
 import DownloadAppSection from "@/components/DownloadAppSection";
 import Footer from "@/components/Footer";
 import TrackingModal from "@/components/TrackingModal";
+import { useEffect } from "react";
+import { decodeTrackingData } from "@/lib/utils";
+import type { TrackingData } from "@/lib/tracking";
 
 const Index = () => {
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [trackingCode, setTrackingCode] = useState("");
+  const [sharedData, setSharedData] = useState<TrackingData | null>(null);
 
   const handleTrack = (code: string) => {
     setTrackingCode(code);
     setIsTrackingOpen(true);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const dataParam = params.get("data");
+    if (dataParam) {
+      const decoded = decodeTrackingData(dataParam);
+      if (decoded) {
+        setSharedData(decoded);
+        setIsTrackingOpen(true);
+      }
+    }
+  }, []);
+
+  const handleClose = () => {
+    setIsTrackingOpen(false);
+    if (sharedData) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("data");
+      window.history.replaceState({}, "", url.toString());
+      setSharedData(null);
+    }
   };
 
   return (
@@ -27,8 +53,9 @@ const Index = () => {
       
       <TrackingModal
         isOpen={isTrackingOpen}
-        onClose={() => setIsTrackingOpen(false)}
+        onClose={handleClose}
         trackingCode={trackingCode}
+        trackingData={sharedData || undefined}
       />
     </div>
   );

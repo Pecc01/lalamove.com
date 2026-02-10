@@ -2,15 +2,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Package, Truck, MapPin, CheckCircle2, Clock, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getTrackingData } from "@/lib/tracking";
+import type { TrackingData } from "@/lib/tracking";
 
 interface TrackingModalProps {
   isOpen: boolean;
   onClose: () => void;
   trackingCode: string;
+  trackingData?: TrackingData;
 }
 
-const TrackingModal = ({ isOpen, onClose, trackingCode }: TrackingModalProps) => {
-  const trackingData = getTrackingData(trackingCode);
+const TrackingModal = ({ isOpen, onClose, trackingCode, trackingData: override }: TrackingModalProps) => {
+  const trackingData = override ?? getTrackingData(trackingCode);
 
   if (!trackingData) {
     return (

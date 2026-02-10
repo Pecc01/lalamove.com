@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Edit, Package, MapPin, Clock, Users } from "lucide-react";
+import { Plus, Trash2, Edit, Package, MapPin, Clock, Users, Share2 } from "lucide-react";
 import { 
   getAllTrackingData, 
   saveTrackingData, 
@@ -35,6 +35,7 @@ import {
 import { getUsers, createUser, deleteUser, User } from "@/lib/auth";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { buildShareLink } from "@/lib/utils";
 
 const AdminDashboard = () => {
   const [packages, setPackages] = useState<TrackingData[]>([]);
@@ -176,6 +177,18 @@ const AdminDashboard = () => {
     toast({ title: currentPackage ? "Rastreio atualizado" : "Rastreio criado" });
   };
 
+  const handleShare = (pkg: TrackingData) => {
+    const link = buildShareLink(pkg);
+    navigator.clipboard.writeText(link).then(
+      () => {
+        toast({ title: "Link de rastreio copiado", description: "Envie ao cliente para visualizar" });
+      },
+      () => {
+        toast({ title: "Falha ao copiar link", description: link, variant: "destructive" });
+      }
+    );
+  };
+
   const handleAddStep = () => {
     if (!currentPackage || !newStepStatus || !newStepLocation) return;
 
@@ -257,6 +270,9 @@ const AdminDashboard = () => {
                   <TableCell className="text-right space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => openEditPackageDialog(pkg)}>
                       <Edit className="h-4 w-4 text-blue-500" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleShare(pkg)}>
+                      <Share2 className="h-4 w-4 text-emerald-600" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(pkg.code)}>
                       <Trash2 className="h-4 w-4 text-red-500" />
