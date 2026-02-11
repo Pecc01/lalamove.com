@@ -3,6 +3,8 @@ import { X, Package, Truck, MapPin, CheckCircle2, Clock, Navigation } from "luci
 import { Button } from "@/components/ui/button";
 import { getTrackingData } from "@/lib/tracking";
 import type { TrackingData } from "@/lib/tracking";
+import { useEffect, useState } from "react";
+import { fetchTrackingByCode } from "@/lib/cloud";
 
 interface TrackingModalProps {
   isOpen: boolean;
@@ -12,9 +14,19 @@ interface TrackingModalProps {
 }
 
 const TrackingModal = ({ isOpen, onClose, trackingCode, trackingData: override }: TrackingModalProps) => {
-  const trackingData = override ?? getTrackingData(trackingCode);
+  const [resolved, setResolved] = useState<TrackingData | null>(override ?? getTrackingData(trackingCode));
+  
+  useEffect(() => {
+    let alive = true;
+    if (!override && trackingCode) {
+      fetchTrackingByCode(trackingCode).then((remote) => {
+        if (alive && remote) setResolved(remote);
+      });
+    }
+    return () => { alive = false; };
+  }, [trackingCode, override]);
 
-  if (!trackingData) {
+  if (!resolved) {
     return (
       <AnimatePresence>
         {isOpen && (
@@ -76,7 +88,7 @@ const TrackingModal = ({ isOpen, onClose, trackingCode, trackingData: override }
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm opacity-80 mb-1">Código de Rastreio</p>
-                  <h2 className="text-2xl font-bold">{trackingData.code}</h2>
+                  <h2 className="text-2xl font-bold">{resolved.code}</h2>
                 </div>
                 <button
                   onClick={onClose}
@@ -93,7 +105,7 @@ const TrackingModal = ({ isOpen, onClose, trackingCode, trackingData: override }
                     <div className="w-3 h-3 rounded-full bg-primary-foreground" />
                     <span className="text-sm opacity-80">Origem</span>
                   </div>
-                  <p className="font-semibold">{trackingData.origin}</p>
+                  <p className="font-semibold">{resolved.origin}</p>
                 </div>
                 <div className="flex-shrink-0">
                   <Navigation className="w-5 h-5 rotate-90" />
@@ -103,7 +115,7 @@ const TrackingModal = ({ isOpen, onClose, trackingCode, trackingData: override }
                     <span className="text-sm opacity-80">Destino</span>
                     <MapPin className="w-3 h-3" />
                   </div>
-                  <p className="font-semibold">{trackingData.destination}</p>
+                  <p className="font-semibold">{resolved.destination}</p>
                 </div>
               </div>
 
@@ -112,17 +124,17 @@ const TrackingModal = ({ isOpen, onClose, trackingCode, trackingData: override }
                 <div className="flex items-center justify-between">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-foreground/20 rounded-full">
                     <Truck className="w-4 h-4" />
-                    <span className="font-medium">{trackingData.status}</span>
+                    <span className="font-medium">{resolved.status}</span>
                   </div>
                   <p className="text-sm opacity-80">
-                    Previsão: <span className="font-semibold">{trackingData.estimatedDelivery}</span>
+                    Previsão: <span className="font-semibold">{resolved.estimatedDelivery}</span>
                   </p>
                 </div>
                 
-                {trackingData.currentLocation && (
+                {resolved.currentLocation && (
                   <div className="flex items-center gap-2 text-sm opacity-90">
                     <MapPin className="w-4 h-4" />
-                    <span>Está em: <strong>{trackingData.currentLocation}</strong></span>
+                    <span>Está em: <strong>{resolved.currentLocation}</strong></span>
                   </div>
                 )}
               </div>
@@ -133,7 +145,7 @@ const TrackingModal = ({ isOpen, onClose, trackingCode, trackingData: override }
               <h3 className="text-lg font-semibold text-foreground mb-6">Histórico do Pedido</h3>
               
               <div className="relative">
-                {trackingData.steps.map((step, index) => (
+                {resolved.steps.map((step, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, x: -20 }}

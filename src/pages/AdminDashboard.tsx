@@ -36,6 +36,7 @@ import { getUsers, createUser, deleteUser, User } from "@/lib/auth";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { buildShareLink } from "@/lib/utils";
+import { saveTrackingToCloud } from "@/lib/cloud";
 
 const AdminDashboard = () => {
   const [packages, setPackages] = useState<TrackingData[]>([]);
@@ -172,6 +173,7 @@ const AdminDashboard = () => {
     newPackage.status = status;
 
     saveTrackingData(newPackage);
+    saveTrackingToCloud(newPackage);
     loadPackages();
     setIsDialogOpen(false);
     toast({ title: currentPackage ? "Rastreio atualizado" : "Rastreio criado" });
