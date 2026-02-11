@@ -38,7 +38,7 @@ export function buildShareLink(data: TrackingData): string {
     if (configured) base = configured;
   }
   if (cloudEnabled) {
-    const code = (data.code || "").toUpperCase();
+    const code = (data.code || "").trim().toUpperCase();
     const payload = encodeTrackingData(data);
     return `${base}/?code=${encodeURIComponent(code)}&data=${encodeURIComponent(payload)}`;
   }

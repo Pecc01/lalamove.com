@@ -14,7 +14,7 @@ const supabase = supabaseEnabled ? createClient(url!, key!) : null;
 export async function fetchTrackingByCode(code: string): Promise<TrackingData | null> {
   if (!cloudEnabled) return null;
   if (supabaseEnabled && supabase) {
-  const normalized = code.toUpperCase();
+  const normalized = code.trim().toUpperCase();
   // Try primary table
   const primaryTable = tableEnv || "tracking";
   const { data, error } = await supabase
@@ -42,7 +42,7 @@ export async function fetchTrackingByCode(code: string): Promise<TrackingData | 
 export async function saveTrackingToCloud(tracking: TrackingData): Promise<boolean> {
   if (!cloudEnabled) return false;
   if (supabaseEnabled && supabase) {
-  const payload = { code: tracking.code.toUpperCase(), data: tracking };
+  const payload = { code: (tracking.code || "").trim().toUpperCase(), data: tracking };
   const primaryTable = tableEnv || "tracking";
   const { error } = await supabase.from(primaryTable).upsert(payload, { onConflict: "code" });
   if (!error) return true;

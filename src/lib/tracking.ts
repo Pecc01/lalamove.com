@@ -146,7 +146,8 @@ const INITIAL_DATA: TrackingData[] = [
 
 export const getTrackingData = (code: string): TrackingData | null => {
   const data = getAllTrackingData();
-  return data.find((t) => t.code.toUpperCase() === code.toUpperCase()) || null;
+  const normalized = code.trim().toUpperCase();
+  return data.find((t) => t.code.toUpperCase() === normalized) || null;
 };
 
 export const getAllTrackingData = (): TrackingData[] => {
@@ -155,12 +156,26 @@ export const getAllTrackingData = (): TrackingData[] => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DATA));
     return INITIAL_DATA;
   }
-  return JSON.parse(stored);
+  const parsed: TrackingData[] = JSON.parse(stored);
+  const codes = new Set(parsed.map((t) => t.code.toUpperCase()));
+  let mutated = false;
+  for (const seed of INITIAL_DATA) {
+    const code = seed.code.toUpperCase();
+    if (!codes.has(code)) {
+      parsed.push(seed);
+      codes.add(code);
+      mutated = true;
+    }
+  }
+  if (mutated) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+  }
+  return parsed;
 };
 
 export const saveTrackingData = (tracking: TrackingData) => {
   const data = getAllTrackingData();
-  const index = data.findIndex((t) => t.code === tracking.code);
+  const index = data.findIndex((t) => t.code.toUpperCase() === (tracking.code || "").toUpperCase());
   
   if (index >= 0) {
     data[index] = tracking;
@@ -173,6 +188,7 @@ export const saveTrackingData = (tracking: TrackingData) => {
 
 export const deleteTrackingData = (code: string) => {
   const data = getAllTrackingData();
-  const newData = data.filter((t) => t.code !== code);
+  const normalized = code.trim().toUpperCase();
+  const newData = data.filter((t) => t.code.toUpperCase() !== normalized);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
 };

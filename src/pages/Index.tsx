@@ -16,7 +16,7 @@ const Index = () => {
   const [sharedData, setSharedData] = useState<TrackingData | null>(null);
 
   const handleTrack = (code: string) => {
-    setTrackingCode(code);
+    setTrackingCode(code.trim().toUpperCase());
     setIsTrackingOpen(true);
   };
 
@@ -32,7 +32,7 @@ const Index = () => {
       }
     }
     if (codeParam) {
-      setTrackingCode(codeParam.toUpperCase());
+      setTrackingCode(codeParam.trim().toUpperCase());
       setIsTrackingOpen(true);
     }
   }, []);

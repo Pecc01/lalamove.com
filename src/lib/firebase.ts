@@ -29,7 +29,7 @@ const db = firebaseEnabled ? getFirestore(app!) : null;
 
 export async function fbFetchTrackingByCode(code: string): Promise<TrackingData | null> {
   if (!firebaseEnabled || !db) return null;
-  const id = code.toUpperCase();
+  const id = code.trim().toUpperCase();
   const ref = doc(db, FIREBASE_COLLECTION, id);
   const snap = await getDoc(ref);
   if (snap.exists()) {
@@ -45,7 +45,7 @@ export async function fbFetchTrackingByCode(code: string): Promise<TrackingData 
 
 export async function fbSaveTrackingToCloud(tracking: TrackingData): Promise<boolean> {
   if (!firebaseEnabled || !db) return false;
-  const id = (tracking.code || "").toUpperCase();
+  const id = (tracking.code || "").trim().toUpperCase();
   const ref = doc(db, FIREBASE_COLLECTION, id);
   await setDoc(ref, { data: tracking }, { merge: true });
   return true;
