@@ -194,7 +194,9 @@ const AdminDashboard = () => {
     newPackage.status = status;
 
     saveTrackingData(newPackage);
-    saveTrackingToCloud(newPackage);
+    if (cloudEnabled) {
+      saveTrackingToCloud(newPackage);
+    }
     loadPackages();
     setIsDialogOpen(false);
     toast({ title: currentPackage ? "Rastreio atualizado" : "Rastreio criado" });
@@ -279,7 +281,9 @@ const AdminDashboard = () => {
     };
 
     saveTrackingData(updatedPackage);
-    saveTrackingToCloud(updatedPackage);
+    if (cloudEnabled) {
+      saveTrackingToCloud(updatedPackage);
+    }
     setCurrentPackage(updatedPackage);
     loadPackages(); // Refresh list
     

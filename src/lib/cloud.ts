@@ -7,7 +7,8 @@ const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const tableEnv = import.meta.env.VITE_SUPABASE_TABLE as string | undefined;
 
 const supabaseEnabled = !!url && !!key;
-export const cloudEnabled = supabaseEnabled || firebaseEnabled;
+const disable = (import.meta.env.VITE_DISABLE_BACKEND as string | undefined) === "true";
+export const cloudEnabled = !disable && (supabaseEnabled || firebaseEnabled);
 
 const supabase = supabaseEnabled ? createClient(url!, key!) : null;
 
