@@ -7,8 +7,9 @@ import DownloadAppSection from "@/components/DownloadAppSection";
 import Footer from "@/components/Footer";
 import TrackingModal from "@/components/TrackingModal";
 import { useEffect } from "react";
-import { decodeTrackingData } from "@/lib/utils";
+import { decodeTrackingData, buildShareLink } from "@/lib/utils";
 import type { TrackingData } from "@/lib/tracking";
+import { getTrackingData } from "@/lib/tracking";
 
 const Index = () => {
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
@@ -16,7 +17,14 @@ const Index = () => {
   const [sharedData, setSharedData] = useState<TrackingData | null>(null);
 
   const handleTrack = (code: string) => {
-    setTrackingCode(code.trim().toUpperCase());
+    const normalized = code.trim().toUpperCase();
+    const local = getTrackingData(normalized);
+    if (local) {
+      const link = buildShareLink(local);
+      window.location.href = link;
+      return;
+    }
+    setTrackingCode(normalized);
     setIsTrackingOpen(true);
   };
 
